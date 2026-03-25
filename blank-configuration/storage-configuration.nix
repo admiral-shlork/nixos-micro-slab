@@ -27,4 +27,9 @@
     { device = "/dev/disk/by-label/root";
       fsType = "ext4";
     };
+  
+  fileSystems."/home/whatever/mnt/internalmmc" =
+    { device = "/dev/disk/by-label/internalmmc";
+      fsType = "ext4";
+    };
 }
