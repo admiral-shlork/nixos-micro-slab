@@ -4,6 +4,7 @@
   boot = {
     initrd.availableKernelModules = [ "ahci" "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
     initrd.kernelModules = [ "dm-snapshot" ];
+    kernelParams = [ "fbcon=rotate:3"];
     kernelModules = [ "kvm-intel" ];
     loader = {
       systemd-boot.enable = true;
