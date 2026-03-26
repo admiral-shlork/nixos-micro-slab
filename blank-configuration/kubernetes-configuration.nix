@@ -33,4 +33,11 @@ in
     # needed if you use swap
     kubelet.extraOpts = "--fail-swap-on=false --cgroup-driver=systemd";
   };
+
+  system.activationScripts.kubernetes-key-perms = {
+    text = ''
+      chmod 640 /var/lib/kubernetes/secrets/cluster-admin-key.pem
+    '';
+    deps = [];
+  };
 }
