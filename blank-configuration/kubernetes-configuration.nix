@@ -40,4 +40,22 @@ in
     '';
     deps = [];
   };
+
+  # Watch for cert renewal and re-apply group permissions immediately
+  systemd.paths.fix-cluster-admin-key-perms = {
+    wantedBy = [ "multi-user.target" ];
+    pathConfig = {
+      PathChanged = "/var/lib/kubernetes/secrets/cluster-admin-key.pem";
+      Unit = "fix-cluster-admin-key-perms.service";
+    };
+  };
+
+  systemd.services.fix-cluster-admin-key-perms = {
+    description = "Fix cluster-admin-key.pem group permissions after certmgr renewal";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.coreutils}/bin/chmod 640 /var/lib/kubernetes/secrets/cluster-admin-key.pem";
+    };
+  };
+
 }
