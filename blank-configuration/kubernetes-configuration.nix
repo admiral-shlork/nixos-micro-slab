@@ -5,12 +5,11 @@ let
   kubeMasterIP = "10.0.0.107";
   kubeMasterHostname = "master.micro-slab";
   kubeMasterAPIServerPort = 6443;
+  kubeMasterFullAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
 in
 {
-  # resolve master hostname
   networking.extraHosts = "${kubeMasterIP} ${kubeMasterHostname}";
 
-  # packages for administration tasks
   environment.systemPackages = with pkgs; [
     kompose
     kubectl
@@ -20,26 +19,19 @@ in
   services.kubernetes = {
     roles = ["master" "node"];
     masterAddress = kubeMasterHostname;
-    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    apiserverAddress = kubeMasterFullAddress;
     easyCerts = true;
     apiserver = {
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
     };
-
-    # use coredns
     addons.dns.enable = true;
-
-    # needed if you use swap
     kubelet.extraOpts = "--fail-swap-on=false --cgroup-driver=systemd";
   };
 
-  system.activationScripts.kubernetes-key-perms = {
-    text = ''
-      chmod 640 /var/lib/kubernetes/secrets/cluster-admin-key.pem
-    '';
-    deps = [];
-  };
+  systemd.tmpfiles.rules = [
+    "m /var/lib/kubernetes/secrets/cluster-admin-key.pem 0640 root root -"
+  ];
 
   # Watch for cert renewal and re-apply group permissions immediately
   systemd.paths.fix-cluster-admin-key-perms = {
